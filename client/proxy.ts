@@ -1,7 +1,3 @@
-// impl_address = 0x5FbDB2315678afecb367f032d93F642f64180aa3
-// new_impl_address = 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
-// proxy_address = 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-
 import { ethers } from "ethers";
 
 const proxy_abi = [
@@ -11,7 +7,9 @@ const proxy_abi = [
   "function changeImplementation(address _newImplementation)",
 ];
 
-const pk = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+const pk = process.env.PRIVATE_KEY as string;
+const proxyAddress = process.env.PROXY_ADDRESS as string;
+const implementationAddress = process.env.IMPLEMENTATION_ADDRESS as string;
 
 class Proxy {
   private proxyContract: ethers.Contract;
@@ -49,14 +47,12 @@ class Proxy {
 }
 
 async function main() {
-  const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL as string);
   const wallet = new ethers.Wallet(pk, provider);
 
-  const proxy = new Proxy("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", wallet);
+  const proxy = new Proxy(proxyAddress, wallet);
 
-  await proxy.changeImplementation(
-    "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-  );
+  await proxy.changeImplementation(implementationAddress);
 
   const currentImpl = await proxy.getImplementation();
   console.log("Current implementation:", currentImpl);
