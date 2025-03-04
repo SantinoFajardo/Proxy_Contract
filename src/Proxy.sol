@@ -18,10 +18,12 @@ contract Proxy {
     fallback() external payable {
         address impl = implementation;
         assembly {
+            // Get the free memory pointer
+            let ptr := mload(0x40)
             // Copy the calldata to memory
-            calldatacopy(0, 0, calldatasize())
+            calldatacopy(ptr, 0, calldatasize())
             // Delegatecall to the implementation contract
-            let result := delegatecall(gas(), impl, 0, calldatasize(), 0, 0)
+            let result := delegatecall(gas(), impl, ptr, calldatasize(), 0, 0)
             // Copy the return data to memory
             returndatacopy(0, 0, returndatasize())
             // If the delegatecall failed, revert
